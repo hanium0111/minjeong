@@ -1,0 +1,69 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+  border-bottom: 2px solid #dbdbdb;
+}
+
+.logoWrap {
+  width: 80px;
+  height: 30px;
+  font-weight: bold;
+  position: relative;
+}
+
+.logoImg {
+  object-fit: contain;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #757575;
+}
+
+.popup {
+  position: absolute;
+  top: 70px; /* Header 아래에 위치하도록 설정 */
+  right: 2rem;
+  width: 9rem;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  max-height: 0;
+}
+
+.popup.open {
+  max-height: 300px; /* 최대 높이 */
+}
+
+.menuList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #757575;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.menuItem:last-child {
+  border-bottom: none;
+}
+
+.menuIcon {
+  margin-right: 10px;
+}
