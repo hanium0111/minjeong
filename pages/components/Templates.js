@@ -34,10 +34,7 @@ export default function Templates({ showMoreButton, showCategories }) {
 
   useEffect(() => {
     const fetchTemplates = async () => {
-      const res = await fetch(
-        "https://41a6-125-176-145-224.ngrok-free.app/templates/sharedTemplates/get"
-      );
-      console.log(res);
+      const res = await fetch("/api/data?filename=templates");
       const data = await res.json();
       setTemplates(data);
     };
