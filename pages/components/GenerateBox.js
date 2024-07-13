@@ -4,38 +4,92 @@ import styles from "./GenerateBox.module.css";
 
 export default function GenerateBox() {
   const [content, setContent] = useState("");
-  const [cssContent, setCssContent] = useState("");
-  const [jsContent, setJsContent] = useState("");
+  const [cssContent, setCssContent] = useState([]);
+  const [jsContent, setJsContent] = useState([]);
+  const [htmlLoaded, setHtmlLoaded] = useState(false);
+  const [imageContent, setImageContent] = useState([]);
+
+  const fetchFile = async (filename) => {
+    const res = await fetch(`/api/render?filename=${filename}`);
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+    return { content: "", isBinary: false, name: filename };
+  };
+
+  const fetchStructure = async () => {
+    const res = await fetch(`/api/render`);
+    const data = await res.json();
+    return data.structure;
+  };
 
   useEffect(() => {
     const fetchFiles = async () => {
-      const [htmlRes, cssRes, jsRes] = await Promise.all([
-        fetch("/api/render?filename=x.html"),
-        fetch("/api/render?filename=x.css"),
-        fetch("/api/render?filename=x.js"),
-      ]);
-      const [htmlData, cssData, jsData] = await Promise.all([
-        htmlRes.json(),
-        cssRes.json(),
-        jsRes.json(),
-      ]);
-      setContent(htmlData.content);
-      setCssContent(cssData.content);
-      setJsContent(jsData.content);
+      const structure = await fetchStructure();
+      const cssFiles = structure
+        .filter((file) => file.name.endsWith(".css"))
+        .map((file) => file.name);
+      const jsFiles = structure
+        .filter((file) => file.name.endsWith(".js"))
+        .map((file) => file.name);
+      const imageFiles = structure
+        .filter((file) =>
+          /\.(jpg|jpeg|png|gif|svg|webp|woff|woff2|ttf)$/.test(file.name)
+        )
+        .map((file) => file.name);
+
+      const cssContents = await Promise.all(cssFiles.map(fetchFile));
+      const jsContents = await Promise.all(jsFiles.map(fetchFile));
+      const imageContents = await Promise.all(imageFiles.map(fetchFile));
+
+      setCssContent(cssContents.map((file) => file.content));
+      setJsContent(jsContents.map((file) => file.content));
+      setImageContent(
+        imageContents.map((file) => ({
+          name: file.name,
+          content: file.isBinary ? `/temp/${file.name}` : file.content,
+        }))
+      );
+
+      const htmlContent = await fetchFile("templatemo_559_zay_shop/index.html"); // Adjust the path as needed
+      setContent(htmlContent.content);
+      setHtmlLoaded(true);
     };
 
     fetchFiles();
   }, []);
 
   const createMarkup = () => {
+    if (!htmlLoaded) return "";
+
+    const cssLinks = cssContent
+      .map((css) => `<style>${css}</style>`)
+      .join("\n");
+    const jsScripts = jsContent
+      .map((js) => `<script>${js}</script>`)
+      .join("\n");
+    const imageReplacements = imageContent.reduce((acc, { name, content }) => {
+      acc[name] = content;
+      return acc;
+    }, {});
+
+    let finalContent = content;
+    Object.keys(imageReplacements).forEach((imageName) => {
+      finalContent = finalContent.replace(
+        new RegExp(imageName, "g"),
+        imageReplacements[imageName]
+      );
+    });
+
     return `
       <html>
         <head>
-          <style>${cssContent}</style>
+          ${cssLinks}
         </head>
         <body>
-          ${content}
-          <script>${jsContent}</script>
+          ${finalContent}
+          ${jsScripts}
         </body>
       </html>
     `;
@@ -44,16 +98,17 @@ export default function GenerateBox() {
   return (
     <div className={styles.wrap}>
       <div className={styles.genBoxWrap}>
-        <Iframe
-          url={`data:text/html;base64,${btoa(createMarkup())}`}
-          width="100%"
-          height="100%"
-          id="generateBox"
-          className={styles.generateBox}
-          display="initial"
-          position="relative"
-          allowFullScreen
-        />
+        {htmlLoaded && (
+          <iframe
+            className={styles.generateBox}
+            srcDoc={createMarkup()}
+            width="100%"
+            height="100%"
+            display="initial"
+            position="relative"
+            allowFullScreen
+          />
+        )}
       </div>
       <div className={styles.editorWrap}>
         <form className={styles.form}>

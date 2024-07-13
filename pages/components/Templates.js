@@ -3,8 +3,21 @@ import styles from "./Templates.module.css";
 import { FaEllipsisV, FaHeart, FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import Btn from "./Btn";
-import { useRouter } from "next/router";
 import Link from "next/link";
+
+// https://41a6-125-176-145-224.ngrok-free.app/templates/sharedTemplates/get
+// <DATA>
+// "id": 1,
+//     "displayName": "nomad",
+//     "email": "sample@gmail.com",
+//     "profileImageUrl": "null",
+//     "category": "포트폴리오",
+//     "templatePath": "/sharedTemplates/nomad-force",
+//     "imagePath": "/page_screenshots/nomad-foce",
+//     "likes": 0,
+//     "description": "포트폴리오에 적합한 템플릿입니다.",
+//     "createdAt": "2024-07-08T14:55:41.000Z",
+//     "updatedAt": "2024-07-08T14:55:41.000Z"
 
 export default function Templates({ showMoreButton, showCategories }) {
   const [templates, setTemplates] = useState([]);
@@ -12,9 +25,19 @@ export default function Templates({ showMoreButton, showCategories }) {
   const [sortOrder, setSortOrder] = useState("최신순");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // useEffect(() => {
+  //   const fetchTemplates = async () => {
+  //     const res = await fetch("/api/data?filename=templates");
+  //     const data = await res.json();
+  //     setTemplates(data);
+  //   };
+
   useEffect(() => {
     const fetchTemplates = async () => {
-      const res = await fetch("/api/data?filename=templates");
+      const res = await fetch(
+        "https://41a6-125-176-145-224.ngrok-free.app/templates/sharedTemplates/get"
+      );
+      console.log(res);
       const data = await res.json();
       setTemplates(data);
     };

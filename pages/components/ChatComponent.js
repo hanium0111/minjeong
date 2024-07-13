@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import styles from "./ChatComponent.module.css";
 
+// [POST] /generate/process-requirments
+// websiteType, feature, mood, content, pageName
+// ** pageName(페이지 이름) 질문 추가
+
 export default function ChatComponent() {
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState([]);
