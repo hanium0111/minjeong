@@ -3,12 +3,16 @@ import styles from "./ChatComponent.module.css";
 
 // [POST] /generate/process-requirments
 // websiteType, feature, mood, content, pageName
-// ** pageName(페이지 이름) 질문 추가
 
 export default function ChatComponent() {
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState([]);
   const [step, setStep] = useState(1);
+  const [websiteType, setWebsiteType] = useState("");
+  const [feature, setFeature] = useState("");
+  const [mood, setMood] = useState("");
+  const [content, setContent] = useState("");
+  const [pageName, setPageName] = useState("");
 
   useEffect(() => {
     if (step === 1 && messages.length === 0) {
@@ -18,15 +22,60 @@ export default function ChatComponent() {
     }
   }, [step, messages.length]);
 
+  useEffect(() => {
+    if (step > 5) {
+      console.log({
+        websiteType,
+        feature,
+        mood,
+        content,
+        pageName,
+      });
+    }
+  }, [step, websiteType, feature, mood, content, pageName]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (inputValue.trim()) {
       setMessages([...messages, { sender: "user", text: inputValue }]);
+      saveResponse(inputValue);
       setInputValue("");
       setTimeout(() => {
         nextStep();
       }, 500);
     }
+  };
+
+  const saveResponse = (response) => {
+    switch (step) {
+      case 1:
+        setWebsiteType(response);
+        break;
+      case 2:
+        setFeature(response);
+        break;
+      case 3:
+        setMood(response);
+        break;
+      case 4:
+        setContent(response);
+        break;
+      case 5:
+        setPageName(response);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleGenerateClick = () => {
+    console.log({
+      websiteType,
+      feature,
+      mood,
+      content,
+      pageName,
+    });
   };
 
   const nextStep = () => {
@@ -42,8 +91,10 @@ export default function ChatComponent() {
         nextQuestion = "어떤 내용을 넣고 싶나요?";
         break;
       case 4:
+        nextQuestion = "페이지 이름을 알려주세요!";
+        break;
+      case 5:
         nextQuestion = "웹사이트를 생성하겠습니다.";
-        console.log(step, messages);
         break;
       default:
         return;
@@ -52,13 +103,7 @@ export default function ChatComponent() {
       ...prevMessages,
       { sender: "assistant", text: nextQuestion },
     ]);
-    setStep((prevStep) => {
-      const newStep = prevStep + 1;
-      if (newStep === 5) {
-        console.log(messages);
-      }
-      return newStep;
-    });
+    setStep((prevStep) => prevStep + 1);
   };
 
   return (
@@ -92,7 +137,7 @@ export default function ChatComponent() {
             </div>
           </div>
         ))}
-        {step <= 4 && (
+        {step <= 5 && (
           <form onSubmit={handleSubmit} className={styles.form}>
             <input
               type="text"
@@ -100,7 +145,7 @@ export default function ChatComponent() {
               onChange={(e) => setInputValue(e.target.value)}
               className={styles.input}
               placeholder="텍스트를 입력하세요"
-              disabled={step > 4}
+              disabled={step > 5}
             />
             <button type="submit" className={styles.button}>
               <svg
@@ -120,7 +165,7 @@ export default function ChatComponent() {
             </button>
           </form>
         )}
-        {step > 4 && (
+        {step > 5 && (
           <form className={styles.form}>
             <input
               type="text"
@@ -128,7 +173,13 @@ export default function ChatComponent() {
               placeholder="웹사이트 생성 버튼을 눌러주세요!"
               disabled
             />
-            <button className={styles.generateButton}>웹사이트 생성</button>
+            <button
+              type="button"
+              className={styles.generateButton}
+              onClick={handleGenerateClick}
+            >
+              웹사이트 생성
+            </button>
           </form>
         )}
       </div>
