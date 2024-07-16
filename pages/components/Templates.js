@@ -4,33 +4,16 @@ import { FaEllipsisV, FaHeart, FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import Btn from "./Btn";
 import Link from "next/link";
-
-// https://41a6-125-176-145-224.ngrok-free.app/templates/sharedTemplates/get
-// <DATA>
-// "id": 1,
-//     "displayName": "nomad",
-//     "email": "sample@gmail.com",
-//     "profileImageUrl": "null",
-//     "category": "포트폴리오",
-//     "templatePath": "/sharedTemplates/nomad-force",
-//     "imagePath": "/page_screenshots/nomad-foce",
-//     "likes": 0,
-//     "description": "포트폴리오에 적합한 템플릿입니다.",
-//     "createdAt": "2024-07-08T14:55:41.000Z",
-//     "updatedAt": "2024-07-08T14:55:41.000Z"
+import Modal from "react-modal";
 
 export default function Templates({ showMoreButton, showCategories }) {
   const [templates, setTemplates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("모든 카테고리");
   const [sortOrder, setSortOrder] = useState("최신순");
   const [searchQuery, setSearchQuery] = useState("");
-
-  // useEffect(() => {
-  //   const fetchTemplates = async () => {
-  //     const res = await fetch("/api/data?filename=templates");
-  //     const data = await res.json();
-  //     setTemplates(data);
-  //   };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+  const [pageName, setPageName] = useState("");
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -77,8 +60,61 @@ export default function Templates({ showMoreButton, showCategories }) {
     return 0;
   });
 
+  const openModal = () => {
+    setModalContent("페이지 이름을 입력해주세요!");
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const pageNameInputValue = ({ input }) => {
+    setPageName(input);
+  };
+
+  const customStyles = {
+    overlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    content: {
+      width: "500px",
+      height: "270px",
+      margin: "auto",
+      borderRadius: "10px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+      padding: "20px",
+    },
+  };
+
   return (
     <>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+      >
+        <form>
+          <h1 className={styles.tempform}>템플릿 이름이랑 연결할 예정</h1>
+          <p className={styles.tempcoment}>{modalContent}</p>
+          <div>
+            <input
+              className={styles.pageinputform}
+              type="text"
+              onChange={(e) => setPageName(e.target.value)}
+            />
+            <button
+              className={styles.okbutton}
+              onClick={() => pageNameInputValue(pageName)}
+            >
+              확인
+            </button>
+            <button className={styles.closebutton} onClick={closeModal}>
+              닫기
+            </button>
+          </div>
+        </form>
+      </Modal>
       <section className={styles.section}>
         {showCategories && (
           <div className={styles.categoriesWrapper}>
@@ -186,6 +222,7 @@ export default function Templates({ showMoreButton, showCategories }) {
                   border={"#4629F2"}
                   textColor={"#fff"}
                   width="7rem"
+                  onClick={openModal}
                 />
               </div>
             </div>
